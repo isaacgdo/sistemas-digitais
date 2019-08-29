@@ -1,7 +1,7 @@
 int output;
 const int pin  = 6;
 const int button = 2;
-int buttonStatus = 0;
+//int buttonStatus = 0;
 int pot= 0;
 int led1 = 7;
 int led2 = 8;
@@ -18,9 +18,9 @@ void setup()
 
 void loop()
 {
-  buttonStatus = digitalRead(button);
+  //buttonStatus = digitalRead(button);
   
-  if(buttonStatus==HIGH){
+  //if(buttonStatus==HIGH){
      output = map(analogRead(A0), 0, 1023, 0, 255);
      char flag = Serial.read();
      if(flag == '1'){
@@ -47,5 +47,5 @@ void loop()
      Serial.println(output);
      analogWrite(pin, output);
      delay(100);
-  }
+  //}
 }
