@@ -1,6 +1,6 @@
 int output;
 const int pin  = 6;
-const int button = 2;
+//const int button = 2;
 //int buttonStatus = 0;
 int pot= 0;
 int led1 = 7;
@@ -10,7 +10,7 @@ void setup()
 {
   Serial.begin(9600);
   pinMode(pot, INPUT);
-  pinMode(button,INPUT);
+  //pinMode(button,INPUT);
   pinMode(led1,OUTPUT);
   pinMode(led2,OUTPUT);
   pinMode(led3,OUTPUT);
