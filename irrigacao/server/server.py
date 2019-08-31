@@ -1,6 +1,5 @@
 import socket
 import serial
-import sys
 
 # TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -37,36 +36,37 @@ while True:
     print('Conexão feita por: ', client_address)
 
     try:
+        lastCommand = 'stop'
         # Loop de recepção de mensagens do cliente remoto
         while True:
-            lastCommand = 'none'
             data = connection.recv(10)  # Aguarda comandos    //TODO erro de releitura
 
             #Loop de controle dos comandos passados
             while True:
                 print('recebido: %s' % data.decode("utf-8"))
                 if data != '' and lastCommand != "quit":
-                    if(data.decode("utf-8") == "start" and lastCommand != "start"):
+                    if (data == b'start' and lastCommand != "start"):
                         print('Enviando dados de volta para o cliente.')
                         #controllerFlag()
                         connection.sendall(data)
                         lastCommand = "start"
                         break
-                    elif(data.decode("utf-8") == "status" and (lastCommand == "start" or lastCommand == "status")):
+                    elif (data == b'status' and (lastCommand == "start" or lastCommand == "status")):
                         print("status")
+                        connection.sendall(data)
                         lastCommand = "status"
                         break
-                    elif(data.decode("utf-8") == "stop" and lastCommand != "stop"):
+                    elif (data == b'stop' and lastCommand != "stop"):
                         print('Encerrando monitoramento.')
                         connection.sendall(data)
                         lastCommand = "stop"
                         break
-                    elif(data.decode("utf-8") == "quit"):
+                    elif (data == b'quit'):
                         connection.close()
                         lastCommand = "quit"
                         break
                     else:
-                        print('voce não pode utilizar esse comando neste momento', client_address)
+                        connection.sendall(b'failed')
                         break
             if lastCommand == "quit":
                 break

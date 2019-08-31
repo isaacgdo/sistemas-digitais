@@ -14,12 +14,16 @@ sock.connect(local_server_address)
 def listHelp():
     print("help - Exibe esta tela de ajuda.")
     print("start - começa a ler os dados do sendor de umidade.")
+    print("stop - Encerra leitura dos dados do sensor de umidade.")
     print("status - Exibe o valor atual de leitura do sensor de umidade e da porcentagem da saída PWM da bomba.")
     print("settime - ")
     print("sethumidity - ")
-    print("stop - Encerra leitura dos dados do sensor de umidade.")
     print("realtime - Exibe os valores do comando status em tempo real.")
     print("quit - Sair do programa e encerrar conexão com o servidor.")
+
+# Caso o comando digitado não possa ser executado
+def actionFail():
+    print("Você não pode utilizar esse comando nesse momento.")
 
 # Função que inicia o monitoramento
 def start():
@@ -31,8 +35,8 @@ def start():
     
     while True:
         if len(data) > 0:
-            #amount_received += len(data)
-            print('recebido: %s' % data.decode("utf-8"))
+            if (data == b'failed'):
+                actionFail()
             break
 
 # Função que finaliza o monitoramento
@@ -44,13 +48,9 @@ def stop():
     data = sock.recv(10)
     while True:
         if len(data) > 0:
-            print('recebido: %s' % data.decode("utf-8"))
+            if(data == b'failed'):
+                actionFail()
             break
-
-def quit():
-    message = b'quit'
-    print('Enviando mensagem: %s' % message.decode("utf-8"))
-    sock.sendall(message)
 
 def status():
     print("action")
@@ -64,6 +64,11 @@ def sethumidity():
 def realtime():
     print("action")
 
+def quit():
+    message = b'quit'
+    print('Enviando mensagem: %s' % message.decode("utf-8"))
+    sock.sendall(message)
+
 try:
     running = True
     print("Bem-vindo ao servidor de monitoramento e controle de irrigação automático.")
@@ -71,17 +76,17 @@ try:
 
     while(running == True):
         action = input('Comando: ')
-        if (action == 'start'):
+        if (action == 'help'):
+            listHelp()
+        elif (action == 'start'):
             start()
         elif (action == 'stop'):
             stop()    
         elif (action == 'quit'):
             quit()
             running = False
-        elif (action == 'help'):
-            listHelp()
         else:
-            print("Comando inválido")
+            print("Comando inválido.")
 finally:
-    print('Encerrando conexão')
+    print('Encerrando conexão.')
     sock.close()
