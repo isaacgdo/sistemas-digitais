@@ -36,16 +36,16 @@ while True:
     connection, client_address = sock.accept()  # Aguarda conexão
     print('Conexão feita por: ', client_address)
 
-    # Loop de recepção de mensagens do cliente remoto
-    while True:
-        try:
+    try:
+        # Loop de recepção de mensagens do cliente remoto
+        while True:
             lastCommand = 'none'
             data = connection.recv(10)  # Aguarda comandos    //TODO erro de releitura
 
             #Loop de controle dos comandos passados
             while True:
                 print('recebido: %s' % data.decode("utf-8"))
-                if data != '':
+                if data != '' and lastCommand != "quit":
                     if(data.decode("utf-8") == "start" and lastCommand != "start"):
                         print('Enviando dados de volta para o cliente.')
                         #controllerFlag()
@@ -61,10 +61,18 @@ while True:
                         connection.sendall(data)
                         lastCommand = "stop"
                         break
-                else:
-                    print('voce não pode utilizar esse comando neste momento', client_address)
-                    break
+                    elif(data.decode("utf-8") == "quit"):
+                        connection.close()
+                        lastCommand = "quit"
+                        break
+                    else:
+                        print('voce não pode utilizar esse comando neste momento', client_address)
+                        break
+            if lastCommand == "quit":
+                break
+    except:
+        print("Falha ao receber o comando.")
 
-        finally:
-            # Encerra conexão
-            connection.close()
+    finally:
+        # Encerra conexão
+        connection.close()

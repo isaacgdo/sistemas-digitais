@@ -32,7 +32,7 @@ def start():
     while True:
         if len(data) > 0:
             #amount_received += len(data)
-            print('recebido: %s' % data)
+            print('recebido: %s' % data.decode("utf-8"))
             break
 
 # Função que finaliza o monitoramento
@@ -42,12 +42,15 @@ def stop():
     sock.sendall(message)
     # recupera mensagens que o server esta mandando
     data = sock.recv(10)
-    
     while True:
         if len(data) > 0:
-            #amount_received += len(data)
-            print('recebido: %s' % data)
+            print('recebido: %s' % data.decode("utf-8"))
             break
+
+def quit():
+    message = b'quit'
+    print('Enviando mensagem: %s' % message.decode("utf-8"))
+    sock.sendall(message)
 
 def status():
     print("action")
@@ -73,6 +76,7 @@ try:
         elif (action == 'stop'):
             stop()    
         elif (action == 'quit'):
+            quit()
             running = False
         elif (action == 'help'):
             listHelp()
