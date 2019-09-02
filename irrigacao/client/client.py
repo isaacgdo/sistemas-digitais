@@ -17,8 +17,7 @@ def listHelp():
     print("start \t \t \t- começa a ler os dados do sendor de umidade.")
     print("status \t \t \t- Exibe o valor atual de leitura do sensor de umidade e da porcentagem da saída PWM da bomba.")
     print("realtime [tempo] \t- Exibe os valores do comando status em tempo real por determinado tempo informado.")
-    print("settime [tempo] \t- Define de quanto em quanto tempo a bomba será acionada de acordo com o valor do sensor de umidade.")
-    print("sethumidity \t \t- ")
+    print("settime [tempo] \t- Programa um tempo para que o sistema seja acionado.")
     print("stop \t \t \t- Encerra leitura dos dados do sensor de umidade.")
     print("quit \t \t \t- Sair do programa e encerrar conexão com o servidor.")
 
@@ -80,12 +79,19 @@ def realtime(action, t):
                     '%.')
         time.sleep(1);
 
-def settime():
-    print("action")
+# Função que define um tempo até que o sistema seja acionado novamente
+def settime(action, t):
+    message = action.encode('utf-8')
+    print('Enviando mensagem: %s' % action)
+    sock.sendall(message)
 
-def sethumidity():
-    print("action")
-            
+    # recupera mensagens que o server esta mandando
+    data = sock.recv(10)
+    if len(data) > 0:
+        if (data == b'failed'):
+            actionFail()
+        else:
+            print('Tempo de ativação setado para: ', t, ' segundos.')
 
 # Função que finaliza o monitoramento
 def stop():
@@ -121,6 +127,12 @@ try:
         elif (action[0:8] == 'realtime'):
             splitted = action.split(' ')
             realtime(action, int(splitted[1]))
+        elif (action[0:7] == 'settime'):
+            splitted = action.split(' ')
+            if (int(splitted[1]) < 4):
+                print("Insira um valor de tempo maior do que 3 segundos.")
+            else:
+                settime(action, int(splitted[1]))
         elif (action == 'stop'):
             stop()    
         elif (action == 'quit'):

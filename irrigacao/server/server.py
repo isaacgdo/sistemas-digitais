@@ -25,6 +25,12 @@ def status():
     serial_connection.write(b'2')
     return output
 
+def settime(t):
+    serial_connection.flush()
+    output = serial_connection.readline()
+    print("settime function liftoff!")
+    serial_connection.write(bytes(t, 'ascii'))
+
 def stop():
     serial_connection.write(b'3')
 
@@ -49,17 +55,38 @@ while True:
                         connection.sendall(data)
                         lastCommand = "start"
                         break
-                    elif (data == b'status' and (lastCommand == "start" or lastCommand == "status" or lastCommand == "realtime")):
+                    elif (data == b'status' and 
+                            (lastCommand == "start" or 
+                            lastCommand == "status" or 
+                            lastCommand == "realtime" or
+                            lastCommand == "settime")):
+                    
                         connection.sendall(status())
                         lastCommand = "status"
                         break
-                    elif (data.decode('utf-8')[0:8] == 'realtime' and (lastCommand == "start" or lastCommand == "status" or lastCommand == "realtime")):
+                    elif (data.decode('utf-8')[0:8] == 'realtime' and
+                            (lastCommand == "start" or 
+                            lastCommand == "status" or 
+                            lastCommand == "realtime" or
+                            lastCommand == "settime")):
+
                         splitted = data.decode('utf-8').split(' ')
                         t_end = time.time() + int(splitted[1])
                         lastCommand = "realtime"
                         while time.time() < t_end:
                             connection.sendall(status())
                             time.sleep(1);
+                        break
+                    elif (data.decode('utf-8')[0:7] == 'settime' and 
+                            (lastCommand == "start" or 
+                            lastCommand == "status" or 
+                            lastCommand == "realtime" or
+                            lastCommand == "settime")):
+
+                        splitted = data.decode('utf-8').split(' ')
+                        settime(splitted[1])
+                        connection.sendall(data)
+                        lastCommand = "settime"
                         break
                     elif (data == b'stop' and lastCommand != "stop"):
                         stop()
