@@ -22,7 +22,7 @@ def status():
     # = int(serial_connection.readline(10).decode("ascii","ignore"))
     serial_connection.flush()
     output = serial_connection.readline()
-    serial_connection.write(b'2')
+    # serial_connection.write(b'2')
     return output
 
 def settime(t):
@@ -30,13 +30,13 @@ def settime(t):
     serial_connection.flush()
     output = serial_connection.readline()
     while True:
-        serial_connection.write(b'4')
+        serial_connection.write(b'3')
         time.sleep(int(splitted[0]));
-        serial_connection.write(b'4')
+        serial_connection.write(b'3')
         time.sleep(int(splitted[1]));
 
 def stop():
-    serial_connection.write(b'3')
+    serial_connection.write(b'2')
 
 # Loop de conexão cliente-servidor
 while True:
