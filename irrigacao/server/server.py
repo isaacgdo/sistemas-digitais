@@ -26,10 +26,14 @@ def status():
     return output
 
 def settime(t):
+    splitted = t.split('-')
     serial_connection.flush()
     output = serial_connection.readline()
-    print("settime function liftoff!")
-    serial_connection.write(bytes(t, 'ascii'))
+    while True:
+        serial_connection.write(b'4')
+        time.sleep(int(splitted[0]));
+        serial_connection.write(b'4')
+        time.sleep(int(splitted[1]));
 
 def stop():
     serial_connection.write(b'3')
@@ -60,7 +64,7 @@ while True:
                             lastCommand == "status" or 
                             lastCommand == "realtime" or
                             lastCommand == "settime")):
-                    
+
                         connection.sendall(status())
                         lastCommand = "status"
                         break

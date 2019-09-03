@@ -2,6 +2,7 @@ int output;
 int lastFlag = 0;
 String inString = "";
 const int pin = 6;
+bool lastState = false;
 //const int button = 2;
 //int buttonStatus = 0;
 int led1 = 7;
@@ -11,10 +12,27 @@ int led3 = 9;
 void setup()
 {
   Serial.begin(9600);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
+
   //pinMode(button,INPUT);
   pinMode(led1,OUTPUT);
   pinMode(led2,OUTPUT);
   pinMode(led3,OUTPUT);
+  pinMode(pin,OUTPUT);
+}
+
+bool swapState()
+{
+  bool temp = false;
+  if(lastState == false) {
+    temp = true;
+  }
+  
+  lastState = temp;
+
+  return temp;
 }
 
 void loop()
@@ -61,14 +79,21 @@ void loop()
      digitalWrite(led1, HIGH);
      digitalWrite(led2, LOW);
      digitalWrite(led3, LOW);
-     analogWrite(pin, output);
-   }
-   else if (flag > 3){
-     inString = "";
-     digitalWrite(led1, LOW);
-     digitalWrite(led2, LOW);
-     digitalWrite(led3, LOW);
      analogWrite(pin, 0);
-     delay(flag*1000);
+   }
+   else if (flag == 4){
+     inString = "";
+     if(swapState() == true) {
+       digitalWrite(led1, HIGH);
+       digitalWrite(led2, LOW);
+       digitalWrite(led3, LOW);
+       analogWrite(pin, 0);
+     } else {
+       analogWrite(pin, output);
+       digitalWrite(led1, LOW);
+       digitalWrite(led2, LOW);
+       digitalWrite(led3, HIGH);
+     }
+     lastFlag = 0;
    }
 }
