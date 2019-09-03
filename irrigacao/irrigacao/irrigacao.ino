@@ -6,7 +6,6 @@ bool lastState = false;
 //const int button = 2;
 //int buttonStatus = 0;
 int led1 = 7;
-int led2 = 8;
 int led3 = 9;
 
 void setup()
@@ -18,7 +17,6 @@ void setup()
 
   //pinMode(button,INPUT);
   pinMode(led1,OUTPUT);
-  pinMode(led2,OUTPUT);
   pinMode(led3,OUTPUT);
   pinMode(pin,OUTPUT);
 }
@@ -39,9 +37,8 @@ void loop()
 {
   //buttonStatus = digitalRead(button);
   
-   output = map(analogRead(A0), 0, 1023, 0, 255);
    if (Serial.available() > 0) {
-    Serial.println(output, DEC);
+     Serial.println(output, DEC);
    }
    int flag = lastFlag;
 
@@ -61,38 +58,38 @@ void loop()
      lastFlag = 1;
      inString = "";
      digitalWrite(led1, LOW);
-     digitalWrite(led2, LOW);
      digitalWrite(led3, HIGH);
      analogWrite(pin, output);
+     output = map(analogRead(A0), 0, 1023, 0, 255);
+//     if (Serial.available() > 0) {
+//       Serial.println(output, DEC);
+//     }
    }
    else if (flag == 2){
      lastFlag = 2;
      inString = "";
-     digitalWrite(led1, LOW);
-     digitalWrite(led2, HIGH);
-     digitalWrite(led3, LOW);
-     analogWrite(pin, output);
-   }
-   else if (flag == 3){
-     lastFlag = 3;
-     inString = "";
      digitalWrite(led1, HIGH);
-     digitalWrite(led2, LOW);
      digitalWrite(led3, LOW);
      analogWrite(pin, 0);
    }
-   else if (flag == 4){
+   else if (flag == 3){
      inString = "";
      if(swapState() == true) {
        digitalWrite(led1, HIGH);
-       digitalWrite(led2, LOW);
        digitalWrite(led3, LOW);
        analogWrite(pin, 0);
+//       output = map(analogRead(A0), 0, 1023, 0, 255);
+//       if (Serial.available() > 0) {
+//         Serial.println(0, DEC);
+//       }
      } else {
        analogWrite(pin, output);
        digitalWrite(led1, LOW);
-       digitalWrite(led2, LOW);
        digitalWrite(led3, HIGH);
+       output = map(analogRead(A0), 0, 1023, 0, 255);
+//       if (Serial.available() > 0) {
+//         Serial.println(output, DEC);
+//       }
      }
      lastFlag = 0;
    }

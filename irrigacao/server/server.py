@@ -1,6 +1,7 @@
 import socket
 import serial
 import time
+import threading
 
 # TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -20,9 +21,8 @@ def start():
 
 def status():
     # = int(serial_connection.readline(10).decode("ascii","ignore"))
-    serial_connection.flush()
+    # serial_connection.flush()
     output = serial_connection.readline()
-    serial_connection.write(b'2')
     return output
 
 def settime(t):
@@ -30,13 +30,16 @@ def settime(t):
     serial_connection.flush()
     output = serial_connection.readline()
     while True:
-        serial_connection.write(b'4')
+        global stop_thread_settime
+        serial_connection.write(b'3')
         time.sleep(int(splitted[0]));
-        serial_connection.write(b'4')
+        serial_connection.write(b'3')
         time.sleep(int(splitted[1]));
+        if stop_thread_settime == True:
+            break
 
 def stop():
-    serial_connection.write(b'3')
+    serial_connection.write(b'2')
 
 # Loop de conexão cliente-servidor
 while True:
@@ -51,59 +54,64 @@ while True:
             data = connection.recv(16)  # Aguarda comandos
 
             #Loop de controle dos comandos passados
-            while True:
-                print('recebido: %s' % data.decode("utf-8"))
-                if data != '' and lastCommand != "quit":
-                    if (data == b'start' and lastCommand == "stop"):
-                        start()
-                        connection.sendall(data)
-                        lastCommand = "start"
-                        break
-                    elif (data == b'status' and 
-                            (lastCommand == "start" or 
-                            lastCommand == "status" or 
-                            lastCommand == "realtime" or
-                            lastCommand == "settime")):
+            # while True:
+            print('recebido: %s' % data.decode("utf-8"))
+            if data != '' and lastCommand != "quit":
+                if (data == b'start' and lastCommand == "stop"):
+                    start()
+                    connection.sendall(data)
+                    lastCommand = "start"
+                    # break
+                elif (data == b'status' and 
+                        (lastCommand == "start" or 
+                        lastCommand == "status" or 
+                        lastCommand == "realtime" or
+                        lastCommand == "settime")):
 
+                    connection.sendall(status())
+                    lastCommand = "status"
+                    # break
+                elif (data.decode('utf-8')[0:8] == 'realtime' and
+                        (lastCommand == "start" or 
+                        lastCommand == "status" or 
+                        lastCommand == "realtime" or
+                        lastCommand == "settime")):
+
+                    splitted = data.decode('utf-8').split(' ')
+                    t_end = time.time() + int(splitted[1])
+                    lastCommand = "realtime"
+                    while time.time() < t_end:
                         connection.sendall(status())
-                        lastCommand = "status"
-                        break
-                    elif (data.decode('utf-8')[0:8] == 'realtime' and
-                            (lastCommand == "start" or 
-                            lastCommand == "status" or 
-                            lastCommand == "realtime" or
-                            lastCommand == "settime")):
+                        time.sleep(1);
+                    # break
+                elif (data.decode('utf-8')[0:7] == 'settime' and 
+                        (lastCommand == "start" or 
+                        lastCommand == "status" or 
+                        lastCommand == "realtime" or
+                        lastCommand == "settime") and stop_thread_settime == True):
 
-                        splitted = data.decode('utf-8').split(' ')
-                        t_end = time.time() + int(splitted[1])
-                        lastCommand = "realtime"
-                        while time.time() < t_end:
-                            connection.sendall(status())
-                            time.sleep(1);
-                        break
-                    elif (data.decode('utf-8')[0:7] == 'settime' and 
-                            (lastCommand == "start" or 
-                            lastCommand == "status" or 
-                            lastCommand == "realtime" or
-                            lastCommand == "settime")):
-
-                        splitted = data.decode('utf-8').split(' ')
-                        settime(splitted[1])
-                        connection.sendall(data)
-                        lastCommand = "settime"
-                        break
-                    elif (data == b'stop' and lastCommand != "stop"):
-                        stop()
-                        connection.sendall(data)
-                        lastCommand = "stop"
-                        break
-                    elif (data == b'quit'):
-                        connection.close()
-                        lastCommand = "quit"
-                        break
-                    else:
-                        connection.sendall(b'failed')
-                        break
+                    splitted = data.decode('utf-8').split(' ')
+                    thread_settime = threading.Thread(target=settime, args=(splitted[1],))
+                    thread_settime.start()
+                    stop_thread_settime = False
+                    # settime(splitted[1])
+                    connection.sendall(data)
+                    lastCommand = "settime"
+                    # break
+                elif (data == b'stop' and lastCommand != "stop"):
+                    stop_thread_settime = True
+                    time.sleep(0.1)
+                    stop()
+                    connection.sendall(data)
+                    lastCommand = "stop"
+                    # break
+                elif (data == b'quit'):
+                    connection.close()
+                    lastCommand = "quit"
+                    # break
+                else:
+                    connection.sendall(b'failed')
+                    # break
             if lastCommand == "quit":
                 break
     # except:
