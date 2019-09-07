@@ -29,6 +29,7 @@ def status():
             serial_connection.write(b'3')
     else:
         serial_connection.write(b'1')
+
     return output
 
 def settime(t):
