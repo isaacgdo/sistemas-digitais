@@ -1,6 +1,6 @@
 O objetivo desse trabalho é o controle da velocidade de rotação do motor. 
 Foi estabelecido diferentes intervalos em que considerou-se a rotação fraca,
-média ou rápida. Para cada nível de velocidade, acende um LED diferente.
+média ou rápida. Para cada nível de velocidade.
 
 Materiais utilizados:
 1. Arduino UNO

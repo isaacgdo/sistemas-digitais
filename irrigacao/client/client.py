@@ -77,7 +77,7 @@ def realtime(action, t):
                     ' Valor PWM na bomba: ',
                     int((int(data.decode("ascii","ignore"))/255)*100),
                     '%.')
-        time.sleep(1);
+        time.sleep(0.5);
 
 # Função que define um tempo até que o sistema seja acionado novamente
 def settime(action, t):
